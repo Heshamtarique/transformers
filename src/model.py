@@ -2,34 +2,36 @@ import torch
 import torch.nn as nn
 import math
 
-class LayerNormalization(nn.Module):
-
-    def __init__(self, features: int, eps:float=10**-6) -> None:
+class InputEmbedding(nn.Module):
+    
+    def __init__(self, d_model, vocab_size: int):
         super().__init__()
-        self.eps = eps
-        self.alpha = nn.Parameter(torch.ones(features)) # alpha is a learnable parameter
-        self.bias = nn.Parameter(torch.zeros(features)) # bias is a learnable parameter
-
+        self.d_model = d_model
+        self.vocab_size = vocab_size  
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        # pytorch provides Embedding layer
+        
     def forward(self, x):
-        # x: (batch, seq_len, hidden_size)
-         # Keep the dimension for broadcasting
-        mean = x.mean(dim = -1, keepdim = True) # (batch, seq_len, 1)
-        # Keep the dimension for broadcasting
-        std = x.std(dim = -1, keepdim = True) # (batch, seq_len, 1)
-        # eps is to prevent dividing by zero or when std is very small
-        return self.alpha * (x - mean) / (std + self.eps) + self.bias
-
-
-class FeedForwardBlock(nn.Module):
-
-    def __init__(self, d_model: int, d_ff: int, dropout: float) -> None:
+        # map the embedding with the pytorch Emb
+        return self.embedding(x) * math.sqrt(self.d_model) 
+    
+    
+# lets now build the positional embeddings
+# embeddign size 512, vocab size - final positional matrix
+    
+class PositionalEmbedding(nn.Module):
+    
+    def __init__(self, d_model:int, seq_len: int, dropout: float):
         super().__init__()
-        self.linear_1 = nn.Linear(d_model, d_ff) # w1 and b1
+        self.d_model = d_model
+        self.seq_len = seq_len
         self.dropout = nn.Dropout(dropout)
-        self.linear_2 = nn.Linear(d_ff, d_model) # w2 and b2
+        
+    # seqence lenght - dimension of the model matrix using these 2
+    pe = torch.zeros(seq_len, d_model)
+    # creating vector of shape seq_lenth
+    
+            
 
-    def forward(self, x):
-        # (batch, seq_len, d_model) --> (batch, seq_len, d_ff) --> (batch, seq_len, d_model)
-        return self.linear_2(self.dropout(torch.relu(self.linear_1(x))))
-
-
+        
+        
