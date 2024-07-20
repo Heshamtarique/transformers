@@ -30,7 +30,7 @@ class PositionalEmbedding(nn.Module):
     # seqence lenght - dimension of the model matrix using these 2
     pe = torch.zeros(seq_len, d_model)
     # creating vector of shape seq_lenth
-    
+    position = torch.arange(0, seq_len, dtype=torch.float).unsqueeze(1)
             
 
         
